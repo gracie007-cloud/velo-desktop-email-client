@@ -13,6 +13,15 @@ import { upsertCalendarEvent, deleteEventByRemoteId } from "../db/calendarEvents
 
 const SYNC_INTERVAL_MS = 60_000; // 60 seconds — delta syncs are lightweight (single API call when idle)
 
+/** Map IMAP sync phases to the SyncProgress phases the UI understands. */
+function mapImapPhase(phase: string): "labels" | "threads" | "messages" | "done" {
+  if (phase === "folders") return "labels";
+  if (phase === "threading" || phase === "storing_threads") return "threads";
+  if (phase === "messages") return "messages";
+  if (phase === "done") return "done";
+  return phase as "labels" | "threads" | "messages" | "done";
+}
+
 let syncTimer: ReturnType<typeof setInterval> | null = null;
 let syncPromise: Promise<void> | null = null;
 let pendingAccountIds: string[] | null = null;
@@ -52,7 +61,7 @@ async function syncGmailAccount(accountId: string): Promise<void> {
     try {
       await deltaSync(client, accountId, account.history_id);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "";
+      const message = err instanceof Error ? err.message : String(err ?? "");
       if (message === "HISTORY_EXPIRED") {
         // Fallback to full sync
         await initialSync(client, accountId, syncDays, (progress) => {
@@ -103,7 +112,7 @@ async function syncImapAccount(accountId: string): Promise<void> {
         await clearAllFolderSyncStates(accountId);
         await imapInitialSync(accountId, syncDays, (progress) => {
           statusCallback?.(accountId, "syncing", {
-            phase: progress.phase === "folders" ? "labels" : progress.phase === "threading" ? "messages" : progress.phase as "labels" | "threads" | "messages" | "done",
+            phase: mapImapPhase(progress.phase),
             current: progress.current,
             total: progress.total,
           });
@@ -114,7 +123,7 @@ async function syncImapAccount(accountId: string): Promise<void> {
     // First time — full initial sync
     await imapInitialSync(accountId, syncDays, (progress) => {
       statusCallback?.(accountId, "syncing", {
-        phase: progress.phase === "folders" ? "labels" : progress.phase === "threading" ? "messages" : progress.phase as "labels" | "threads" | "messages" | "done",
+        phase: mapImapPhase(progress.phase),
         current: progress.current,
         total: progress.total,
       });
@@ -235,7 +244,7 @@ async function syncAccountInternal(accountId: string): Promise<void> {
       console.warn(`[syncManager] Calendar sync error for ${accountId}:`, err);
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
+    const message = err instanceof Error ? err.message : String(err ?? "Unknown error");
     console.error(`[syncManager] Sync failed for account ${accountId}:`, message);
     statusCallback?.(accountId, "error", undefined, message);
   }

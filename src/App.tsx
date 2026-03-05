@@ -70,6 +70,7 @@ import { MoveToFolderDialog } from "./components/email/MoveToFolderDialog";
 import { OfflineBanner } from "./components/ui/OfflineBanner";
 import { UpdateToast } from "./components/ui/UpdateToast";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary";
+import { formatSyncError } from "./utils/networkErrors";
 import { getThemeById, COLOR_THEMES } from "./constants/themes";
 import type { ColorThemeId } from "./constants/themes";
 import { router } from "./router";
@@ -387,12 +388,12 @@ export default function App() {
         if (progress) {
           if (progress.phase === "messages") {
             setSyncStatus(
-              `Syncing: ${progress.current}/${progress.total} threads`,
+              `Syncing: ${progress.current}/${progress.total} messages`,
             );
           } else if (progress.phase === "labels") {
             setSyncStatus("Syncing labels...");
           } else if (progress.phase === "threads") {
-            setSyncStatus(`Fetching threads... (${progress.current})`);
+            setSyncStatus(`Building threads... (${progress.current}/${progress.total})`);
           }
         } else {
           setSyncStatus("Syncing...");
@@ -410,7 +411,7 @@ export default function App() {
             .catch((err) => console.error("Backfill error:", err));
         }
       } else if (status === "error") {
-        setSyncStatus(error ? `Sync failed: ${error}` : "Sync failed");
+        setSyncStatus(error ? `Sync failed: ${formatSyncError(error)}` : "Sync failed");
         // Still dispatch sync-done so the UI refreshes with any partially stored data
         window.dispatchEvent(new Event("velo-sync-done"));
         // Auto-clear the error after 8 seconds

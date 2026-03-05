@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.4.21](https://github.com/avihaymenahem/velo/compare/velo-v0.4.20...velo-v0.4.21) (2026-02-27)
+
+
+### Bug Fixes
+
+* improve IMAP sync error handling and reliability ([29ce210](https://github.com/avihaymenahem/velo/commit/29ce210b78c1dccaf0cdef02f1342dcd14f0aedf))
+
+## [0.4.20](https://github.com/avihaymenahem/velo/compare/velo-v0.4.19...velo-v0.4.20) (2026-02-26)
+
+
+### Bug Fixes
+
+* add Escape key to close inline reply editor ([386b403](https://github.com/avihaymenahem/velo/commit/386b40303e5dece542eb2617e485e352cc3f5c07))
+* resolve SQLite transaction errors during IMAP initial sync ([6044f42](https://github.com/avihaymenahem/velo/commit/6044f429581f6c2142cc536f1eb6299347bfdbeb)), closes [#192](https://github.com/avihaymenahem/velo/issues/192)
+
+## [0.4.19](https://github.com/avihaymenahem/velo/compare/velo-v0.4.18...velo-v0.4.19) (2026-02-25)
+
+
+### Features
+
+* chunked IMAP sync with lightweight UID search and batched transactions ([7440215](https://github.com/avihaymenahem/velo/commit/7440215fe1bf923afc666486ec2c999ed1e5c266))
+
+
+### Bug Fixes
+
+* allow optional space after colon in search operators ([d1e9495](https://github.com/avihaymenahem/velo/commit/d1e9495ec5efa247406941d0b5ebfec55d699927))
+
 ## [0.4.18](https://github.com/avihaymenahem/velo/compare/velo-v0.4.17...velo-v0.4.18) (2026-02-24)
 
 
